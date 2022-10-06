@@ -1,9 +1,9 @@
 {
-	"name": "dart-data-class-generator",
-	"displayName": "Dart Data Class Generator",
+	"name": "dart-generator-gorniv",
+	"displayName": "[DGG] Dart Generator by gorniv",
 	"description": "Create dart data classes easily, fast and without writing boilerplate or running code generation.",
-	"publisher": "hzgood",
-	"version": "0.5.4",
+	"publisher": "gornivv",
+	"version": "1.0.0",
 	"engines": {
 		"vscode": "^1.37.0"
 	},
@@ -20,7 +20,7 @@
 		"data class generator"
 	],
 	"author": {
-		"name": "hzgood"
+		"name": "Kravchenko Igor"
 	},
 	"categories": [
 		"Programming Languages",
@@ -35,17 +35,17 @@
 	"contributes": {
 		"commands": [
 			{
-				"title": "Dart Data Class Generator: Generate from class properties",
+				"title": "Dart Data Class Generator: Generate from class properties[DGG]",
 				"command": "dart_data_class.generate.from_props"
 			},
 			{
-				"title": "Dart Data Class Generator: Generate from JSON",
+				"title": "Dart Data Class Generator: Generate from JSON[DGG]",
 				"command": "dart_data_class.generate.from_json"
 			}
 		],
 		"configuration": [
 			{
-				"title": "Dart Data Class Generator configuration",
+				"title": "Dart Data Class Generator configuration[DGG]",
 				"properties": {
 					"dart_data_class_generator.quick_fixes": {
 						"type": "boolean",
@@ -220,7 +220,10 @@
 		]
 	},
 	"scripts": {
-		"test": "node ./test/runTest.js"
+		"test": "node ./test/runTest.js",
+		"vsce:package": "vsce package",
+		"vsce:publish": "vsce publish",
+		"release": "npm run vsce:publish && npm publish"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.1",
