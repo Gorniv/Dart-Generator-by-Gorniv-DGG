@@ -100,7 +100,9 @@ class DartDynamic {
     if (T is String) {
       return asrT<List>(value, method: 'asList').cast<T>().toList();
     }
-    return asrT<List>(value, method: 'asrList').map((e) => DartDynamic.asrT<T>(e)).toList();
+    return asrT<List>(value, method: 'asrList')
+        .map((e) => DartDynamic.asrT<T>(e))
+        .toList();
   }
 
   static Map<TKey, TValue>? asMap<TKey, TValue>(dynamic value) {
@@ -137,7 +139,7 @@ class DartDynamic {
   ///
   /// Example:
   /// ```dart
-  /// static PspFieldModel? fromMap(Map<String, dynamic>? map) {
+  /// static PspFieldModel? fromMap(Map<dynamic, dynamic>? map) {
   ///   if (map==null) {
   ///     return null;
   ///   }
@@ -154,7 +156,8 @@ class DartDynamic {
       if (value is String) {
         return enumValues.firstWhere((element) => element.name == value);
       }
-      throw Exception('value must be "int" or "String" type but it is "${value.runtimeType}" type');
+      throw Exception(
+          'value must be "int" or "String" type but it is "${value.runtimeType}" type');
     } catch (e, stackTrace) {
       final exception = Exception(
         '''
@@ -163,7 +166,8 @@ the cause can be a new value from a server.
 Details: $e''',
       );
 
-      _logger.e('Cast as exception:', exception: exception, tag: _name, stackTrace: stackTrace);
+      _logger.e('Cast as exception:',
+          exception: exception, tag: _name, stackTrace: stackTrace);
     }
     const defaultValue = 0;
     return enumValues.elementAt(defaultValue);
@@ -178,7 +182,8 @@ Details: $e''',
         return enumValues.firstWhere((element) => element.name == value);
       }
       throw RequiredException(
-        messageFromCast: 'value must be "int" or "String" type but it is "${value.runtimeType}" type',
+        messageFromCast:
+            'value must be "int" or "String" type but it is "${value.runtimeType}" type',
         stackTrace: StackTrace.current,
       );
     } catch (e, stackTrace) {
@@ -192,7 +197,8 @@ Details: $e''',
     }
   }
 
-  static T? asT<T>(dynamic value, {String method = 'asT', bool ignoreError = false}) {
+  static T? asT<T>(dynamic value,
+      {String method = 'asT', bool ignoreError = false}) {
     if (value == null) {
       return null;
     }
@@ -202,7 +208,8 @@ Details: $e''',
     if (!ignoreError) {
       _logger.e(
         'Cast as exception',
-        exception: Exception('as for method = $method - and type = ${T.runtimeType} not applyed for $value'),
+        exception: Exception(
+            'as for method = $method - and type = ${T.runtimeType} not applyed for $value'),
         tag: _name,
         stackTrace: StackTrace.current,
       );
@@ -216,12 +223,14 @@ Details: $e''',
     }
     if (value == null) {
       throw RequiredException(
-        messageFromCast: 'as required for method = $method - and type = ${T.runtimeType} not applyed for null value',
+        messageFromCast:
+            'as required for method = $method - and type = ${T.runtimeType} not applyed for null value',
         stackTrace: StackTrace.current,
       );
     }
     throw RequiredException(
-      messageFromCast: 'Cast exception as required for method = $method - and type = ${T.runtimeType} not applyed for $value',
+      messageFromCast:
+          'Cast exception as required for method = $method - and type = ${T.runtimeType} not applyed for $value',
       stackTrace: StackTrace.current,
     );
   }

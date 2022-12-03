@@ -1398,7 +1398,7 @@ class DataClassGenerator {
             }
         }
 
-        let method = `static ${clazz.name}? fromMap(Map<String, dynamic>? map) {\n
+        let method = `static ${clazz.name}? fromMap(Map<dynamic, dynamic>? map) {\n
 if (map==null){
 	return null;
 }\n`;
@@ -1410,9 +1410,9 @@ if (map==null){
             const value = `map['${p.jsonName}']`;
 
             // Add nullable check before serialization
-            if (p.isNullable) {
-                method += value + ' != null ? ';
-            }
+            // if (p.isNullable) {
+            //     method += value + ' != null ? ';
+            // }
 
             // serialization
             if (p.isEnum) {
@@ -1472,9 +1472,9 @@ if (map==null){
             }
 
             // end nullable check if field is nullable
-            if (p.isNullable) {
-                method += ' : null';
-            }
+            // if (p.isNullable) {
+            //     method += ' : null';
+            // }
 
             method += `,\n`;
 
@@ -1486,7 +1486,7 @@ if (map==null){
         this.appendOrReplace(
             'fromMap',
             method,
-            `static ${clazz.name}? fromMap(Map<String, dynamic>? map)`,
+            `static ${clazz.name}? fromMap(Map<dynamic, dynamic>? map)`,
             clazz
         );
     }
@@ -1507,7 +1507,7 @@ if (map==null){
     insertFromJson(clazz) {
         this.requiresImport('dart:convert');
 
-        const method = `static ${clazz.name}? fromJson(String source) => ${clazz.name}.fromMap(DartDynamic.asMap<String,dynamic>(JsonSync.decode(source)));`;
+        const method = `static ${clazz.name}? fromJson(String source) => ${clazz.name}.fromMap(DartDynamic.asMap<dynamic,dynamic>(JsonSync.decode(source)));`;
         this.appendOrReplace(
             'fromJson',
             method,
