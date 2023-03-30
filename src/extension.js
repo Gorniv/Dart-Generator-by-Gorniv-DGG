@@ -718,8 +718,8 @@ class ClassField {
                 this.rawType == collection
                     ? 'dynamic'
                     : this.rawType
-                          .replace(collection + '<', '')
-                          .replace('>', '');
+                        .replace(collection + '<', '')
+                        .replace('>', '');
             return new ClassField(type, this.name, this.line, this.isFinal);
         }
 
@@ -1216,9 +1216,8 @@ class DataClassGenerator {
         method += `  return ${clazz.type}(\n`;
 
         for (let p of clazz.properties) {
-            method += `    ${clazz.hasNamedConstructor ? `${p.name}: ` : ''}${
-                p.name
-            } ?? this.${p.name},\n`;
+            method += `    ${clazz.hasNamedConstructor ? `${p.name}: ` : ''}${p.name
+                } ?? this.${p.name},\n`;
         }
 
         method += '  );\n';
@@ -1253,9 +1252,8 @@ class DataClassGenerator {
                 case 'IconData':
                     return `${name}${nullSafe}.codePoint${endFlag}`;
                 default:
-                    return `${name}${
-                        !prop.isPrimitive ? `${nullSafe}.toMap()` : ''
-                    }${endFlag}`;
+                    return `${name}${!prop.isPrimitive ? `${nullSafe}.toMap()` : ''
+                        }${endFlag}`;
             }
         }
 
@@ -1266,8 +1264,8 @@ class DataClassGenerator {
 
             if (p.isEnum) {
                 if (p.isCollection)
-                    method += `${p.name}.map((x) => x.index).toList(),\n`;
-                else method += `${p.name}.index,\n`;
+                    method += `${p.name}.map((x) => x.name).toList(),\n`;
+                else method += `${p.name}.name,\n`;
             } else if (p.isCollection) {
                 var ortype =
                     p.rawType != 'Map<String, String>' &&
@@ -1282,7 +1280,7 @@ class DataClassGenerator {
                         : '';
                     method += `${p.name}${mapFlag},\n`;
                 } else {
-                    method += `${p.name}.map((x) => ${customTypeMapping(
+                    method += `${p.name}${p.isNullable ? '?' : ''}.map((x) => ${customTypeMapping(
                         p,
                         'x',
                         ''
@@ -1335,32 +1333,28 @@ class DataClassGenerator {
                 case 'enum':
                     return '';
                 case 'String':
-                    return `${value} ${
-                        prop.isNullable ? '?.toString()' : '.toString()'
-                    }`;
+                    return `${value} ${prop.isNullable ? '?.toString()' : '.toString()'
+                        }`;
                 case 'double':
-                    return `${
-                        prop.isNullable
+                    return `${prop.isNullable
                             ? 'DartDynamic.asDouble(' + value + ')'
                             : 'DartDynamic.asrDouble(' + value + ')'
-                    }`;
+                        }`;
                 case 'bool':
-                    return `${
-                        prop.isNullable
+                    return `${prop.isNullable
                             ? 'DartDynamic.asBool(' + value + ')'
                             : 'DartDynamic.asrBool(' + value + ')'
-                    }`;
+                        }`;
                 case 'int':
-                    return `${
-                        prop.isNullable
+                    return `${prop.isNullable
                             ? 'DartDynamic.asInt(' + value + ')'
                             : 'DartDynamic.asrInt(' + value + ')'
-                    }`;
+                        }`;
                 case 'DateTime':
                     value = withDefaultValues
                         ? `${leftOfValue}${value}??0${rightOfValue}`
                         : value;
-                    return `DateTime.fromMillisecondsSinceEpoch(${value}${materialConvertValue})`;
+                    return `${value}${materialConvertValue}.toString().toDateTime()`;
                 case 'Color':
                     value = withDefaultValues
                         ? `${leftOfValue}${value}??0${rightOfValue}`
@@ -1372,29 +1366,25 @@ class DataClassGenerator {
                         : value;
                     return `IconData(${value}${materialConvertValue}, fontFamily: 'MaterialIcons')`;
                 default:
-                    return `${
-                        !prop.isPrimitive
+                    return `${!prop.isPrimitive
                             ? prop.type + '.fromMap(DartDynamic.asMap('
                             : ''
-                    }${value}${
-                        !prop.isPrimitive
+                        }${value}${!prop.isPrimitive
                             ? prop.isNullable
                                 ? '))'
                                 : '))!'
                             : ''
-                    }${
-                        fromJSON
+                        }${fromJSON
                             ? prop.isDouble
                                 ? '.toDouble()'
                                 : prop.isInt
-                                ? '.toInt()'
-                                : ''
+                                    ? '.toInt()'
+                                    : ''
                             : ''
-                    }${
-                        isAddDefault
+                        }${isAddDefault
                             ? ` ?? ${prop.defValue}${addRightDefault}`
                             : ''
-                    }`;
+                        }`;
             }
         }
 
@@ -1427,10 +1417,9 @@ if (map==null){
             } else if (p.isCollection) {
                 const defaultValue =
                     withDefaultValues && !p.isNullable && p.isPrimitive
-                        ? ` ?? const <${p.listType.rawType}>${
-                              p.isList ? '[]' : '{}'
-                          })`
-                        : '';
+                        ? ` ?? const <${p.listType.rawType}>${p.isList ? '[]' : '{}'
+                        })`
+                        : ' ?? [] ';
 
                 if (
                     p.isMap &&
@@ -1439,30 +1428,26 @@ if (map==null){
                     p.rawType != 'Map<String, int>' &&
                     p.rawType != 'Map<String, double>'
                 ) {
-                    method += `DartDynamic.as${p.type}(${value})${
-                        p.isNullable ? '?' : '!'
-                    }.map((key, value) => MapEntry(key.toString(), ${p.type.substring(
-                        'Map<String,'.length,
-                        p.type.length - 1
-                    )}.fromMap(DartDynamic.asMap(value))!))`;
+                    method += `DartDynamic.as${p.type}(${value})${p.isNullable ? '?' : '!'
+                        }.map((key, value) => MapEntry(key.toString(), ${p.type.substring(
+                            'Map<String,'.length,
+                            p.type.length - 1
+                        )}.fromMap(DartDynamic.asMap(value))!))`;
                 } else {
                     method += `${p.type}.from(`;
                     /// List<String>.from(map['allowed'] ?? const <String>[] as List<String>),
                     if (p.isPrimitive) {
-                        method += `DartDynamic.${
-                            p.isNullable ? 'asT' : 'asrT'
-                        }<${p.type}>(${value}${defaultValue}))`;
+                        method += `DartDynamic.${p.isNullable ? 'asT' : 'asrT'
+                            }<${p.type}>(${value}) ${defaultValue})`;
                     } else {
-                        method += `${
-                            p.isNullable
+                        method += `${p.isNullable
                                 ? 'DartDynamic.asList('
                                 : 'DartDynamic.asrList('
-                        }${value})${
-                            p.isNullable ? '?' : ''
-                        }.map((x) => ${customTypeMapping(
-                            p,
-                            'x'
-                        )},),${defaultValue})`;
+                            }${value})${p.isNullable ? '?' : ''
+                            }.map((x) => ${customTypeMapping(
+                                p,
+                                'x'
+                            )}, )  ${defaultValue},)`;
                     }
                 }
                 /// (map['name'] ?? '') as String
@@ -1603,8 +1588,8 @@ if (map==null){
                     collectionEqualityFn = prop.isSet
                         ? 'setEquals'
                         : prop.isMap
-                        ? 'mapEquals'
-                        : 'listEquals';
+                            ? 'mapEquals'
+                            : 'listEquals';
                 method += `    ${collectionEqualityFn}(other.${prop.name}, ${prop.name})`;
             } else {
                 method += `    other.${prop.name} == ${prop.name}`;
@@ -1644,9 +1629,8 @@ if (map==null){
         } else {
             for (let p of props) {
                 const isFirst = p == props[0];
-                method += `${isFirst && !short ? '' : short ? ' ' : '    '}${
-                    p.name
-                }.hashCode`;
+                method += `${isFirst && !short ? '' : short ? ' ' : '    '}${p.name
+                    }.hashCode`;
                 if (p == props[props.length - 1]) {
                     method += ';';
                 } else {
@@ -3075,7 +3059,7 @@ function showInfo(msg) {
     vscode.window.showInformationMessage(msg);
 }
 
-function deactivate() {}
+function deactivate() { }
 
 module.exports = {
     activate,
