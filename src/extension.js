@@ -1246,7 +1246,7 @@ class DataClassGenerator {
             const nullSafe = prop.isNullable ? '?' : '';
             switch (prop.type) {
                 case 'DateTime':
-                    return `${name}${nullSafe}.millisecondsSinceEpoch${endFlag}`;
+                    return `${name}${nullSafe}.toIso8601String()${endFlag}`;
                 case 'Color':
                     return `${name}${nullSafe}.value${endFlag}`;
                 case 'IconData':
@@ -1265,7 +1265,7 @@ class DataClassGenerator {
             if (p.isEnum) {
                 if (p.isCollection)
                     method += `${p.name}.map((x) => x.name).toList(),\n`;
-                else method += `${p.name}.name,\n`;
+                else method += `${p.name}${p.isNullable ? '?' : ''}.name,\n`;
             } else if (p.isCollection) {
                 var ortype =
                     p.rawType != 'Map<String, String>' &&
@@ -1337,24 +1337,24 @@ class DataClassGenerator {
                         }`;
                 case 'double':
                     return `${prop.isNullable
-                            ? 'DartDynamic.asDouble(' + value + ')'
-                            : 'DartDynamic.asrDouble(' + value + ')'
+                        ? 'DartDynamic.asDouble(' + value + ')'
+                        : 'DartDynamic.asrDouble(' + value + ')'
                         }`;
                 case 'bool':
                     return `${prop.isNullable
-                            ? 'DartDynamic.asBool(' + value + ')'
-                            : 'DartDynamic.asrBool(' + value + ')'
+                        ? 'DartDynamic.asBool(' + value + ')'
+                        : 'DartDynamic.asrBool(' + value + ')'
                         }`;
                 case 'int':
                     return `${prop.isNullable
-                            ? 'DartDynamic.asInt(' + value + ')'
-                            : 'DartDynamic.asrInt(' + value + ')'
+                        ? 'DartDynamic.asInt(' + value + ')'
+                        : 'DartDynamic.asrInt(' + value + ')'
                         }`;
                 case 'DateTime':
                     value = withDefaultValues
                         ? `${leftOfValue}${value}??0${rightOfValue}`
                         : value;
-                    return `${value}${materialConvertValue}.toString().toDateTime()`;
+                    return `${value}.toString().toDateTime()`;
                 case 'Color':
                     value = withDefaultValues
                         ? `${leftOfValue}${value}??0${rightOfValue}`
@@ -1367,8 +1367,8 @@ class DataClassGenerator {
                     return `IconData(${value}${materialConvertValue}, fontFamily: 'MaterialIcons')`;
                 default:
                     return `${!prop.isPrimitive
-                            ? prop.type + '.fromMap(DartDynamic.asMap('
-                            : ''
+                        ? prop.type + '.fromMap(DartDynamic.asMap('
+                        : ''
                         }${value}${!prop.isPrimitive
                             ? prop.isNullable
                                 ? '))'
@@ -1412,7 +1412,7 @@ if (map==null){
                     method += `${p.type}.from((DartDynamic.asList(${leftOfValue}${value}${defaultValue}${rightOfValue})).map<${p.listType.rawType}>((x) => ${p.listType.rawType}.values[x]),)`;
                 } else {
                     const defaultValue = withDefaultValues ? ' ?? 0' : '';
-                    method += `DartDynamic.asEnum(${value}, ${p.rawType}.values)`;
+                    method += `DartDynamic.asEnum(${value}, ${p.rawType}.values)${p.isNullable ? '' : '!'}`;
                 }
             } else if (p.isCollection) {
                 const defaultValue =
@@ -1441,8 +1441,8 @@ if (map==null){
                             }<${p.type}>(${value}) ${defaultValue})`;
                     } else {
                         method += `${p.isNullable
-                                ? 'DartDynamic.asList('
-                                : 'DartDynamic.asrList('
+                            ? 'DartDynamic.asList('
+                            : 'DartDynamic.asrList('
                             }${value})${p.isNullable ? '?' : ''
                             }.map((x) => ${customTypeMapping(
                                 p,

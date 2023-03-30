@@ -3,7 +3,7 @@
 	"displayName": "[DGG] Dart Generator by gorniv",
 	"description": "Create dart data classes easily, fast and without writing boilerplate or running code generation.",
 	"publisher": "gornivv",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"engines": {
 		"vscode": "^1.37.0"
 	},
@@ -226,14 +226,14 @@
 		"release": "npm run vsce:publish && npm publish"
 	},
 	"devDependencies": {
-		"@types/glob": "^7.1.1",
-		"@types/mocha": "^5.2.6",
-		"@types/node": "^10.12.21",
-		"@types/vscode": "^1.37.0",
-		"eslint": "^5.13.0",
-		"glob": "^7.1.4",
-		"mocha": "^6.1.4",
-		"typescript": "^3.3.1",
-		"vscode-test": "^1.0.2"
+		"@types/glob": "8.1.0",
+		"@types/mocha": "10.0.1",
+		"@types/node": "18.15.11",
+		"@types/vscode": "1.76.0",
+		"eslint": "8.37.0",
+		"glob": "9.3.2",
+		"mocha": "10.2.0",
+		"typescript": "5.0.2",
+		"vscode-test": "1.6.1"
 	}
 }
