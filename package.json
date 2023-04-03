@@ -223,7 +223,7 @@
 		"test": "node ./test/runTest.js",
 		"vsce:package": "vsce package",
 		"vsce:publish": "vsce publish",
-		"release": "npm run vsce:publish && npm publish"
+		"release": "npm run vsce:package && npm run vsce:publish"
 	},
 	"devDependencies": {
 		"@types/glob": "8.1.0",
