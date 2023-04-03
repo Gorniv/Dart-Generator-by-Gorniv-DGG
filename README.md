@@ -48,6 +48,10 @@ In order for `enums` to be correctly serialized from and to JSON, please annotat
 ```dart
 // enum
 final Enum myEnum;
+
+//Map<enum,enum>
+final Map<Enum,Enum2> myEnumMap;
+
 ```
 
 #### Usage with Equatable

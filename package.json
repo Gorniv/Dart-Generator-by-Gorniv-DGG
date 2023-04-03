@@ -3,7 +3,7 @@
 	"displayName": "[DGG] Dart Generator by gorniv",
 	"description": "Create dart data classes easily, fast and without writing boilerplate or running code generation.",
 	"publisher": "gornivv",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"engines": {
 		"vscode": "^1.37.0"
 	},

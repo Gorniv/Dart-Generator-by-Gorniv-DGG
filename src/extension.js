@@ -683,6 +683,7 @@ class ClassField {
         this.isFinal = isFinal;
         this.isConst = isConst;
         this.isEnum = false;
+        this.prevLine = '';
         this.isCollectionType = (type) =>
             this.rawType == type || this.rawType.startsWith(type + '<');
     }
@@ -1252,11 +1253,11 @@ class DataClassGenerator {
                 case 'IconData':
                     return `${name}${nullSafe}.codePoint${endFlag}`;
                 default:
-                    return `${name}${!prop.isPrimitive ? `${nullSafe}.toMap()` : ''
+                    return `${name}${!prop.isPrimitive ? `${nullSafe}.toMap()${endFlag}` : ''
                         }${endFlag}`;
             }
         }
-
+        let endFlag = ',\n'
         let method = `Map<String, dynamic> toMap() {\n`;
         method += '  return <String, dynamic>{\n';
         for (let p of props) {
@@ -1264,8 +1265,8 @@ class DataClassGenerator {
 
             if (p.isEnum) {
                 if (p.isCollection)
-                    method += `${p.name}.map((x) => x.name).toList(),\n`;
-                else method += `${p.name}${p.isNullable ? '?' : ''}.name,\n`;
+                    method += `${p.name}.map((x) => x.name).toList()${endFlag}`;
+                else method += `${p.name}${p.isNullable ? '?' : ''}.name${endFlag}`;
             } else if (p.isCollection) {
                 var ortype =
                     p.rawType != 'Map<String, String>' &&
@@ -1273,18 +1274,26 @@ class DataClassGenerator {
                     p.rawType != 'Map<String, int>' &&
                     p.rawType != 'Map<String, double>';
                 if (p.isMap && ortype) {
-                    method += `${p.name}.map((key, value) => MapEntry(key, value?.toMap()))`;
+                    if (p.prevLine.toString().match(/Map<enum,enum>/)) {
+                        method += `${p.name}${(p.isNullable ? '?' : '')}.map((key, value) => MapEntry(key.name, value.name))${endFlag}`;
+                    } else
+                        if (p.prevLine.toString().match(/Map<String,enum>/)) {
+                            method += `${p.name}${(p.isNullable ? '?' : '')}.map((key, value) => MapEntry(key, value.name))${endFlag}`;
+                        } else {
+                            method += `${p.name}${(p.isNullable ? '?' : '')}.map((key, value) => MapEntry(key, value.toMap()))${endFlag}`;
+
+                        }
                 } else if (p.isMap || p.listType.isPrimitive) {
                     const mapFlag = p.isSet
                         ? (p.isNullable ? '?' : '') + '.toList()'
                         : '';
-                    method += `${p.name}${mapFlag},\n`;
+                    method += `${p.name}${mapFlag}${endFlag}`;
                 } else {
                     method += `${p.name}${p.isNullable ? '?' : ''}.map((x) => ${customTypeMapping(
                         p,
                         'x',
                         ''
-                    )}).toList(),\n`;
+                    )}).toList()${endFlag}`;
                 }
             } else {
                 method += customTypeMapping(p);
@@ -1428,11 +1437,20 @@ if (map==null){
                     p.rawType != 'Map<String, int>' &&
                     p.rawType != 'Map<String, double>'
                 ) {
-                    method += `DartDynamic.as${p.type}(${value})${p.isNullable ? '?' : '!'
-                        }.map((key, value) => MapEntry(key.toString(), ${p.type.substring(
-                            'Map<String,'.length,
-                            p.type.length - 1
-                        )}.fromMap(DartDynamic.asMap(value))!))`;
+                    let split = p.type.split(',');
+                    let type = p.type.substring(3);
+                    let type1 = split[0].toString().substring(4);
+                    let type2 = split[1].toString().substring(1, split[1].length - 1);
+                    let convert = `MapEntry${type}(key.toString(), ${type2}.fromMap(DartDynamic.asMap(value))`;
+                    if (p.prevLine.match(/Map<enum,enum>/g)) {
+                        convert = `MapEntry${type}( DartDynamic.asEnum(key.toString(), ${type1}.values)! ,  DartDynamic.asEnum(value.toString(), ${type2}.values)`;
+                    }
+
+                    method += `DartDynamic.as${p.type}( DartDynamic.asMap(${value})${p.isNullable ? '?' : '!'
+                        }.map(
+                            // ignore: avoid_annotating_with_dynamic
+          (dynamic key, dynamic value) => ${convert}!,),),)${p.isNullable ? '' : '!'
+                        }`;
                 } else {
                     method += `${p.type}.from(`;
                     /// List<String>.from(map['allowed'] ?? const <String>[] as List<String>),
@@ -1440,7 +1458,7 @@ if (map==null){
                         method += `DartDynamic.${p.isNullable ? 'asT' : 'asrT'
                             }<${p.type}>(${value}) ${defaultValue})`;
                     } else {
-                        method += `${p.isNullable
+                        method += `   ${p.isNullable
                             ? 'DartDynamic.asList('
                             : 'DartDynamic.asrList('
                             }${value})${p.isNullable ? '?' : ''
@@ -1480,7 +1498,7 @@ if (map==null){
      * @param {DartClass} clazz
      */
     insertToJson(clazz) {
-        this.requiresImport('dart:convert');
+        // this.requiresImport('dart:convert');
 
         const method = 'String toJson() => JsonSync.encode(toMap());';
         this.appendOrReplace('toJson', method, 'String toJson()', clazz);
@@ -1490,7 +1508,7 @@ if (map==null){
      * @param {DartClass} clazz
      */
     insertFromJson(clazz) {
-        this.requiresImport('dart:convert');
+        // this.requiresImport('dart:convert');
 
         const method = `static ${clazz.name}? fromJson(String source) => ${clazz.name}.fromMap(DartDynamic.asMap<dynamic,dynamic>(JsonSync.decode(source)));`;
         this.appendOrReplace(
@@ -1966,6 +1984,7 @@ if (map==null){
 
                             if (i > 0) {
                                 const prevLine = lines[i - 1];
+                                prop.prevLine = prevLine;
                                 prop.isEnum =
                                     prevLine.match(/.*\/\/(\s*)enum/) != null;
                             }
