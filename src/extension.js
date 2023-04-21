@@ -1253,7 +1253,8 @@ class DataClassGenerator {
                 case 'IconData':
                     return `${name}${nullSafe}.codePoint${endFlag}`;
                 default:
-                    return `${name}${!prop.isPrimitive ? `${nullSafe}.toMap()${endFlag}` : ''
+                    return `${name}${!prop.isPrimitive ? 
+                        `${nullSafe}.toMap()` : ''
                         }${endFlag}`;
             }
         }
